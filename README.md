@@ -23,7 +23,12 @@ GPU版本
 导出 Export Settings -> Provider -> Pascal VOC
 
 ## 3. VOC 生成 darknet dataset
-使用脚本  `pascal_voc_to_label.py` 生成 darknet format.
+使用脚本  `python pascal_voc_to_label.py --data_dir=training\4\4 --imgaugloop=10 --augcheck` 生成 darknet format.
+```
+--data_dir #pascal voc directory
+--imgaugloop  # image augmentation ，default：0，means no augmentation
+--augcheck  # whether generate check image for augmentation
+```
 最终包含:
 
 ## 4. 开始训练

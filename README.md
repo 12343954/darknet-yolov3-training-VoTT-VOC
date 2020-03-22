@@ -1,5 +1,5 @@
 # darknet yolov3 training (VoTT, VOC, VS2019)
-Not only the object recognition boxes, but also more information (angle, center point)
+**Not only the object recognition boxes, but also more information (angle, center point)**  
 不仅可以获取物体识别框，还能获取更多信息（角度、中心点）
 
 ## 1. 安装环境

@@ -74,4 +74,4 @@ python detect.py --config=voc_custom\yolov3_custom.cfg --weight=voc_custom\backu
 
 ## 7. 已知问题
 1. 图像增强之后的box位置不够精准，最好手动标注图像增强图片
-2. 识别角度和大小精准度不够，需要改进 `cvContours` 算法
+2. 识别角度和大小不够精准，需要改进 `cvContours` 算法

@@ -52,10 +52,16 @@ GPU版本
   **注意，要修改yolov3.cfg成yolov3_custom.cfg，修改里面的配置，然后放到 voc_custom 目录下**
 
 ## 4. 开始训练
-命令`darknet detector train training\3\voc_custom\voc_custom.data training\3\voc_custom\yolov3_custom.cfg darknet53.conv.74`
+命令
+```
+darknet detector train voc_custom\voc_custom.data voc_custom\yolov3_custom.cfg darknet53.conv.74
+```
 
 darknet53.conv.74 需要单独下载
 
 ## 5. 最后，测试你的weight
-命令 `python detect.py --config=training\3\voc_custom\yolov3_custom.cfg --weight=training\3\voc_custom\backup\yolov3_custom_10000.weights --meta=training\3\voc_custom\voc_custom.data --image=input\IMG_1876.jpg --output=output\IMG_1876_out.jpg`
+命令 
+```
+python detect.py --config=voc_custom\yolov3_custom.cfg --weight=voc_custom\backup\yolov3_custom_10000.weights --meta=voc_custom\voc_custom.data --image=input\IMG_1876.jpg --output=output\IMG_1876_out.jpg
+```
 

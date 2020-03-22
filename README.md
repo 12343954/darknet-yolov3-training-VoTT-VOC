@@ -18,3 +18,13 @@ GPU版本
 4，打开darknet.sln提示升级–重定向项目，默认的，别动，也就是要升级匹配编译环境，否则也编译不过去，因为我只装了vs 2019  
 5，vs 设置“最大并行生成项目数” = 1，否则还是编译不过去  
 6，【最重要】的是，如果想用darknet 的 python 版本，还要按照上述编译darknet教程一步不差的设置，编译 yolo_cpp_dll.dll，然后就是缺啥库 就 pip install 吧，darknet.py 人家写好了，就不用pip install了  
+
+## 2. VoTT 标注图片
+导出 Export Settings -> Provider -> Pascal VOC
+
+## 3. VOC 生成 darknet dataset
+使用脚本  `pascal_voc_to_label.py` 生成 darknet format.
+最终包含:
+
+## 4. 开始训练
+命令``

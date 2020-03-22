@@ -22,7 +22,7 @@ GPU版本
 ## 2. VoTT 标注图片
 导出 Export Settings -> Provider -> Pascal VOC
 
-## 3. VOC 生成 darknet dataset
+## 3. VOC 生成 darknet dataset，自动生成 voc_custom 目录
 使用脚本  `python pascal_voc_to_label.py --data_dir=training\4\4 --imgaugloop=10 --augcheck` 生成 darknet format.
 ```
 --data_dir #pascal voc directory
@@ -30,6 +30,30 @@ GPU版本
 --augcheck  # whether generate check image for augmentation
 ```
 最终包含:
+./voc_custom
+│  coco_custom.names
+│  train.txt
+│  tree.txt
+│  val.txt
+│  voc_custom.data
+│  yolov3_custom.cfg
+│  
+├─backup
+│      yolov3_custom_1000.weights
+│      yolov3_custom_last.weights
+│      
+└─labels
+        IMG_1544.jpg
+        IMG_1544.txt
+        IMG_1544_aug_0.jpg
+        IMG_1544_aug_0.txt
+  **注意，要修改yolov3.cfg成yolov3_custom.cfg，修改里面的配置，然后放到 voc_custom 目录下**
 
 ## 4. 开始训练
-命令``
+命令`darknet detector train training\3\voc_custom\voc_custom.data training\3\voc_custom\yolov3_custom.cfg darknet53.conv.74`
+
+darknet53.conv.74 需要单独下载
+
+## 5. 最后，测试你的weight
+命令 `python detect.py --config=training\3\voc_custom\yolov3_custom.cfg --weight=training\3\voc_custom\backup\yolov3_custom_10000.weights --meta=training\3\voc_custom\voc_custom.data --image=input\IMG_1876.jpg --output=output\IMG_1876_out.jpg`
+

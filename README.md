@@ -13,7 +13,7 @@
 | VoTT  | 2.1.0 |
 
 
-GPU版本  
+GPU版本，注意：  
 1，CUDA 安装的时候要选择 vs 编译库 visual_studio_integration，还要拷贝到vs编译工具里  
 2，还要设置cudnn安装步骤，把cudnn里面的文件都复制到CUDA目录下面，否则 cudnn.h 找不到  
 3，opencv 4.2.0 里只有opencv2了，不过不影响使用，我用的是vc14里的lib  

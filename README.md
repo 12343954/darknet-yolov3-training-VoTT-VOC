@@ -30,6 +30,7 @@ GPU版本
 --augcheck  # whether generate check image for augmentation
 ```
 最终包含:
+```
 ./voc_custom
 │  coco_custom.names
 │  train.txt
@@ -47,6 +48,7 @@ GPU版本
         IMG_1544.txt
         IMG_1544_aug_0.jpg
         IMG_1544_aug_0.txt
+```
   **注意，要修改yolov3.cfg成yolov3_custom.cfg，修改里面的配置，然后放到 voc_custom 目录下**
 
 ## 4. 开始训练

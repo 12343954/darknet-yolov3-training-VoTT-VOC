@@ -21,11 +21,15 @@ GPU版本，注意：
 5. vs 设置“最大并行生成项目数” = 1，否则还是编译不过去  
 6. 【最重要】的是，如果想用darknet 的 python 版本，还要按照上述编译darknet教程一步不差的设置，编译 yolo_cpp_dll.dll，然后就是缺啥库 就 pip install 吧，darknet.py 人家写好了，就不用pip install了  
 
-## 2. VoTT 标注图片
+## 2. 下载 darknet 源码，并编译 release x64
+编译完成之后，下载上面的python代码到 `.\darknet\build\darknet\x64` 下
+
+
+## 3. VoTT 标注图片
 1. 导出 Export Settings -> Provider -> Pascal VOC
 2. 修改xml节点path为自定义存放目录
 
-## 3. VOC 生成 darknet dataset，自动生成 voc_custom 目录
+## 4. VOC 生成 darknet dataset，自动生成 voc_custom 目录
 使用脚本  `python pascal_voc_to_label.py --data_dir=training\4\4 --imgaugloop=10 --augcheck` 生成 darknet format.
 ```
 --data_dir #pascal voc directory
@@ -54,7 +58,7 @@ GPU版本，注意：
 ```
   **注意，要修改yolov3.cfg成yolov3_custom.cfg，修改里面的配置，然后放到 voc_custom 目录下**
 
-## 4. 开始训练
+## 5. 开始训练
 命令
 ```
 darknet detector train voc_custom\voc_custom.data voc_custom\yolov3_custom.cfg darknet53.conv.74
@@ -62,7 +66,7 @@ darknet detector train voc_custom\voc_custom.data voc_custom\yolov3_custom.cfg d
 
 darknet53.conv.74 需要单独下载
 
-## 5. 最后，测试你的weight
+## 6. 最后，测试你的weight
 命令 
 ```
 python detect.py --config=voc_custom\yolov3_custom.cfg --weight=voc_custom\backup\yolov3_custom_10000.weights --meta=voc_custom\voc_custom.data --image=input\IMG_1876.jpg --output=output\IMG_1876_out.jpg

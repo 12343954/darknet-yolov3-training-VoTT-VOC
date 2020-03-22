@@ -12,6 +12,7 @@
 | Python  | 3.7.4 |
 | VoTT  | 2.1.0 |
 
+参考 [Win10 + VS2019 配置Darknet YOLOv3](https://www.zhezhi.press/2019/10/17/win10-vs2019-%E9%85%8D%E7%BD%AEdarknet-yolov3/)
 
 GPU版本，注意：  
 1. CUDA 安装的时候要选择 vs 编译库 visual_studio_integration，还要拷贝到vs编译工具里  

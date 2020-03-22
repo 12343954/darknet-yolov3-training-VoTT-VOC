@@ -72,3 +72,6 @@ darknet53.conv.74 需要单独下载
 python detect.py --config=voc_custom\yolov3_custom.cfg --weight=voc_custom\backup\yolov3_custom_10000.weights --meta=voc_custom\voc_custom.data --image=input\IMG_1876.jpg --output=output\IMG_1876_out.jpg
 ```
 
+## 7. 已知问题
+1. 图像增强之后的box位置不够精准，最好手动标注图像增强图片
+2. 识别角度和大小精准度不够，需要改进 `cvContours` 算法

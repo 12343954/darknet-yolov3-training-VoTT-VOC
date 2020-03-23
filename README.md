@@ -27,7 +27,7 @@ GPU版本，注意：
 
 
 ## 3. VoTT 标注图片
-1. 导出 Export Settings -> Provider -> Pascal VOC
+1. 导出 Export Settings -> Provider -> Pascal VOC, Asset State -> Only Tagged Assets
 2. 修改xml节点path为自定义存放目录
 
 ## 4. VOC 生成 darknet dataset，自动生成 voc_custom 目录

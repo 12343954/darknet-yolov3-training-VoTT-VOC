@@ -1,19 +1,15 @@
 """
 convert VoTT Pascal Voc format to darknet text label format
 
-smith
-2020-3-8
+smith, 2020-3-8
 
 
 VOC structure
-│  tree.txt
 │  
-└─1
-    │  coco_custom.names
-    │  yolov3_custom.cfg
+└─11
     │  
-    └─Pascal_VOC_dataset
-        │  pascal_label_map.pbtxt
+    └─Pascal_VOC_export
+        │ pascal_label_map.pbtxt
         │  
         ├─Annotations
         │      IMG_1512.xml
@@ -29,11 +25,19 @@ VOC structure
         └─JPEGImages
                 IMG_1512.png
                 IMG_1513.png
-                
+
+YOLO structure
+│  
+└─Labeled
+    │   IMG_1512.png
+    │   IMG_1512.xml
+    │   IMG_1513.png
+    │   IMG_1513.xml  
 """
 import xml.etree.ElementTree as ET
 import pickle
-import os, shutil
+import os
+import shutil
 from os import listdir, getcwd
 from os.path import join
 
@@ -45,7 +49,8 @@ import lxml.etree
 import tqdm
 import coloredlogs
 import logging
-import json, re
+import json
+import re
 
 import pickle
 import numpy as np
@@ -56,13 +61,13 @@ from imgaug import augmenters as iaa
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="DEBUG", logger=logger)
 
-flags.DEFINE_string(
-    "data_dir", "./training/pascal_voc", "path to raw PASCAL VOC dataset"
-)
+flags.DEFINE_string("data_dir", "./training/pascal_voc",
+                    "path to raw PASCAL VOC dataset")
 flags.DEFINE_string("output", None, "output label text path")
 flags.DEFINE_boolean("imgaug", None, "wether image aug")
 flags.DEFINE_integer("imgaugloop", 0, "aug times")
-flags.DEFINE_boolean("augcheck", None, "wether generate validation augment images")
+flags.DEFINE_boolean(
+    "augcheck", None, "wether generate validation augment images")
 
 
 # /ImageSets/Main
@@ -94,7 +99,7 @@ def convert_annotation(data_dir, out_dir, out_label_dir, in_file, in_name, class
 
     # print(os.path.basename(out_file))
     # return
-    annotation_xml = lxml.etree.fromstring(open(in_file).read())
+    annotation_xml = lxml.etree.fromstring(open(in_file, 'rb').read())
     root = parse_xml(annotation_xml)["annotation"]
     filename = root["filename"]
 
@@ -124,13 +129,16 @@ def convert_annotation(data_dir, out_dir, out_label_dir, in_file, in_name, class
 
             if os.path.exists(out_file):
                 shutil.copy2(
-                    os.path.join(data_dir, "JPEGImages", filename), out_label_dir
+                    os.path.join(data_dir, "JPEGImages",
+                                 filename), out_label_dir
                 )
                 with open(out_file, "a") as f:
-                    f.write(str(cls_id) + " " + " ".join([str(a) for a in bb]) + "\n")
+                    f.write(str(cls_id) + " " +
+                            " ".join([str(a) for a in bb]) + "\n")
             else:
                 with open(out_file, "w") as f:
-                    f.write(str(cls_id) + " " + " ".join([str(a) for a in bb]) + "\n")
+                    f.write(str(cls_id) + " " +
+                            " ".join([str(a) for a in bb]) + "\n")
                 # print(str(cls_id) + " " + " ".join([str(a) for a in bb]) + "\n")
 
 
@@ -149,7 +157,7 @@ def parse_xml(xml):
     return {xml.tag: result}
 
 
-# 读取xml 的 object 节点
+# read object node in  xml
 def read_xml_annotation(root, image_id):
     # in_file = open(os.path.join(root, image_id))
     in_file = open(root)
@@ -157,8 +165,8 @@ def read_xml_annotation(root, image_id):
     root = tree.getroot()
     bndboxlist = []
 
-    for object in root.findall("object"):  # 找到root节点下的所有country节点
-        bndbox = object.find("bndbox")  # 子节点下节点rank的值
+    for object in root.findall("object"):
+        bndbox = object.find("bndbox")
         # print(bndbox)
 
         xmin = int(float(bndbox.find("xmin").text))
@@ -173,17 +181,17 @@ def read_xml_annotation(root, image_id):
     return bndboxlist
 
 
-# 修改&创建xml
+# modify&create new xml
 def change_xml_list_annotation(root, image_id, new_target, saveroot, id):
 
-    # in_file = open(os.path.join(root, str(image_id) + ".xml"))  # 这里root分别由两个意思
-    in_file = open(os.path.join(root))  # 这里root分别由两个意思
+    # in_file = open(os.path.join(root, str(image_id) + ".xml"))
+    in_file = open(os.path.join(root))
     tree = ET.parse(in_file)
     xmlroot = tree.getroot()
     index = 0
 
-    for object in xmlroot.findall("object"):  # 找到root节点下的所有country节点
-        bndbox = object.find("bndbox")  # 子节点下节点rank的值
+    for object in xmlroot.findall("object"):
+        bndbox = object.find("bndbox")
 
         # xmin = int(bndbox.find('xmin').text)
         # xmax = int(bndbox.find('xmax').text)
@@ -210,14 +218,15 @@ def change_xml_list_annotation(root, image_id, new_target, saveroot, id):
     xmlroot.find("filename").text = xmlroot.find("filename").text.replace(
         image_id, new_name
     )
-    xmlroot.find("path").text = xmlroot.find("path").text.replace(image_id, new_name)
+    xmlroot.find("path").text = xmlroot.find(
+        "path").text.replace(image_id, new_name)
 
     saved_path = os.path.join(saveroot, new_name + ".xml")
     tree.write(saved_path)
     return saved_path
 
 
-# 图像增强主函数
+# imgaug
 # FLAGS.data_dir, out_dir, out_label_dir, annotation_xml, name, classes
 def image_augment(seq, data_dir, out_dir, out_label_dir, annotation_xml, name, classes):
     boxes_img_aug_list = []
@@ -226,15 +235,17 @@ def image_augment(seq, data_dir, out_dir, out_label_dir, annotation_xml, name, c
 
     bndbox = read_xml_annotation(annotation_xml, name)
     for epoch in range(FLAGS.imgaugloop):
-        seq_det = seq.to_deterministic()  # 保持坐标和图像同步改变，而不是随机
 
-        # 读取图片
-        img = Image.open(os.path.join(data_dir, "JPEGImages", name[:-4] + ".jpg"))
+        # Keep the coordinates and the image changing synchronously, not randomly
+        seq_det = seq.to_deterministic()
+
+        # read image
+        img = Image.open(os.path.join(
+            data_dir, "JPEGImages", name[:-4] + ".jpg"))
         img = np.array(img)
 
-        # bndbox 坐标增强
+        # change bndbox
         for i in range(len(bndbox)):
-            temp_bndbox_list = []
             bbs = ia.BoundingBoxesOnImage(
                 [
                     ia.BoundingBox(
@@ -260,7 +271,7 @@ def image_augment(seq, data_dir, out_dir, out_label_dir, annotation_xml, name, c
                 ]
             )
 
-        # 存储变化后的图片
+        # save the augment image
         image_aug = seq_det.augment_images([img])[0]
         auged_name = str(name[:-4]) + "_aug_" + str(epoch) + ".jpg"
 
@@ -269,7 +280,7 @@ def image_augment(seq, data_dir, out_dir, out_label_dir, annotation_xml, name, c
         image_saved = Image.fromarray(image_auged)
         image_saved.save(path)
 
-        # 画验证框
+        # draw bbox
         if FLAGS.augcheck:
             draw = ImageDraw.Draw(image_saved)
             for rect in new_bndbox_list:
@@ -282,7 +293,7 @@ def image_augment(seq, data_dir, out_dir, out_label_dir, annotation_xml, name, c
             )
             image_saved.save(val_path)
 
-        # 存储变化后的XML
+        # save new XML
         auged_xml = change_xml_list_annotation(
             annotation_xml,
             name[:-4],
@@ -296,8 +307,9 @@ def image_augment(seq, data_dir, out_dir, out_label_dir, annotation_xml, name, c
             data_dir, out_dir, out_label_dir, auged_xml, auged_name, classes
         )
 
-        # 加进组imgaug_files
-        imgaug_files.append(os.path.relpath(os.path.join(out_label_dir, auged_name)))
+        # append to imgaug_files
+        imgaug_files.append(os.path.relpath(
+            os.path.join(out_label_dir, auged_name)))
 
         new_bndbox_list = []
 
@@ -366,18 +378,20 @@ def main(_argv):
         # f.writelines(list("%s\n" % item for item in classes))
         f.write("\n".join(classes))
 
-    logger.debug("\n`coco.names` created : {}".format(os.path.relpath(coco_names)))
+    logger.debug("\n`coco.names` created : {}".format(
+        os.path.relpath(coco_names)))
 
     # map `/ImageSets/Main/*.txt`, ["train","val"]
     train_list = list()
     val_list = list()
 
-    # 1. 把文件里的内容合并到2个list中
+    # 1. union the txt content
     for t in FILE_TYPES:
         for index, name in enumerate(classes):
             txt_file = os.path.relpath(
                 os.path.join(
-                    FLAGS.data_dir, "ImageSets", "Main", ("%s_%s.txt" % (name, t))
+                    FLAGS.data_dir, "ImageSets", "Main", ("%s_%s.txt" % (
+                        name, t))
                 )
             )
             # print(index, txt_file)
@@ -388,7 +402,7 @@ def main(_argv):
             else:
                 val_list.extend(image_list)
 
-    # 2. 去重复
+    # 2. distinct
     train_list = [x.split(" ")[0] for x in train_list]
     train_list = list(set(train_list))
 
@@ -398,20 +412,23 @@ def main(_argv):
     # print("train %d", len(train_list))
     # print("train %d", len(val_list))
 
-    # 3. 开始生成 train text
+    # 3. generate train.text
     logger.info("\nmapping [%s] files %d …………" % ("train", len(train_list)))
 
     if FLAGS.imgaugloop > 0:
-        # 影像增强
+        # imgaug queue
         seq = iaa.Sequential(
             [
-                iaa.Flipud(0.5),  # 对50%的图片进行垂直镜像翻转vertically flip 20% of all images
-                iaa.Fliplr(0.5),  # 对50%的图片进行水平镜像翻转
-                iaa.Multiply((1.2, 1.5)),  # 更改图像的亮度（原始值的50-150％）。
-                # iaa.GaussianBlur(sigma=(0, 3.0)),  # iaa.GaussianBlur(0.5),
-                # 使用来模糊每个图像的强度＃高斯模糊（0和3.0之间的sigma），
-                # #平均/均匀模糊（内核大小在2x2和7x7之间）
-                # #中值模糊（内核大小在3x3和11x11之间）。
+                # 1. vertically flip 50% of all images
+                iaa.Flipud(0.5),
+
+                # 2. horizontally flip 50% of all images
+                iaa.Fliplr(0.5),
+
+                # 3. change brightness
+                iaa.Multiply((1.2, 1.5)),
+
+                # 4. Blur effects
                 iaa.OneOf(
                     [
                         iaa.GaussianBlur((0, 3.0)),
@@ -419,13 +436,6 @@ def main(_argv):
                         iaa.MedianBlur(k=(3, 11)),
                     ]
                 ),
-                # 给某些图像添加高斯噪声。
-                # 在这些情况的50％中，噪声是根据频道和像素。
-                # 在所有其他情况的50％中，每个采样一次＃像素（即亮度变化）。
-                iaa.AdditiveGaussianNoise(loc=0, scale=(0.0, 0.05 * 255)),
-                iaa.Affine(
-                    translate_px={"x": 15, "y": 15}, scale=(0.8, 0.95), rotate=(-30, 30)
-                ),  # translate by 40/60px on x/y axis, and scale to 50-70%, affects BBs
             ]
         )
 
@@ -445,7 +455,7 @@ def main(_argv):
         # train_list[i] = "%s%s%s" % (out_label_dir, os.sep, name)
         list_train.append("%s%s%s" % (out_label_dir, os.sep, name))
 
-        # 图像增强，每张10次
+        # imgaug
         if FLAGS.imgaugloop > 0:
             list_temp = image_augment(
                 seq,
@@ -458,7 +468,7 @@ def main(_argv):
             )
             list_train.extend(list_temp)
 
-    # 4. 开始生成 val text
+    # 4. generate val.text
     logger.info("\nmapping [%s] files %d …………" % ("val", len(val_list)))
     for name in tqdm.tqdm(val_list):
         annotation_xml = os.path.join(
@@ -472,7 +482,7 @@ def main(_argv):
         # val_list[i] = "%s%s%s" % (out_label_dir, os.sep, name)
         list_val.append("%s%s%s" % (out_label_dir, os.sep, name))
 
-        # 图像增强，每张10次
+        # imgaug
         if FLAGS.imgaugloop > 0:
             list_temp = image_augment(
                 seq,
@@ -511,7 +521,7 @@ def main(_argv):
     print("Finally output:\n\n%s" % out_info)
     print("\n\nAll done!\n\n")
     logger.warning(
-        "\nNext, create your own `yolov3.cfg`, and put it in the `voc_custom` folder! \n"
+        "\nNext, create your own `yolov3_custom.cfg`, and put it in the `voc_custom` folder! \n"
     )
 
 

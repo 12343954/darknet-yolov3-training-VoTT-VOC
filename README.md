@@ -71,7 +71,8 @@ darknet53.conv.74, need to be downloaded separately
 ## 6. Finally，test your custom weight
 command： 
 ```
-python detect.py --config=voc_custom\yolov3_custom.cfg --weight=voc_custom\backup\yolov3_custom_10000.weights --meta=voc_custom\voc_custom.data --image=input\IMG_1876.jpg --output=output\IMG_1876_out.jpg
+python detect.py --config=voc_custom\yolov3_custom.cfg --weight=voc_custom\backup\yolov3_custom_10000.weights 
+        --meta=voc_custom\voc_custom.data --image=input\IMG_1876.jpg --output=output\IMG_1876_out.jpg
 ```
 
 ## 7. Known issues

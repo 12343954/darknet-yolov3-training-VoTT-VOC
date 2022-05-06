@@ -103,7 +103,7 @@ def convert_annotation(data_dir, out_dir, out_label_dir, in_file, in_name, class
     root = parse_xml(annotation_xml)["annotation"]
     filename = root["filename"]
 
-    name, _ = filename.split(".")
+    name = filename.split(".")[0]
     out_file = os.path.join(out_label_dir, "%s.txt" % (name))
 
     size = root["size"]
